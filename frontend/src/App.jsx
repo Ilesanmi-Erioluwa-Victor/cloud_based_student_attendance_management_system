@@ -35,6 +35,14 @@ function Layout({ children }) {
   );
 }
 
+function DashboardRedirect() {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/login" replace />;
+  if (user.role === 'lecturer') return <Navigate to="/lecturer/dashboard" replace />;
+  if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />;
+  return <Layout><StudentDashboard /></Layout>;
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -44,7 +52,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        <Route path="/dashboard" element={<ProtectedRoute><Layout><StudentDashboard /></Layout></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
 
         <Route path="/courses" element={<ProtectedRoute><Layout><MyCourses /></Layout></ProtectedRoute>} />
         <Route path="/mark-attendance" element={<ProtectedRoute roles={['student']}><Layout><MarkAttendance /></Layout></ProtectedRoute>} />
