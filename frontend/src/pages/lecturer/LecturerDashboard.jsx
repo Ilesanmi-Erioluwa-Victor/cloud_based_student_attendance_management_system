@@ -35,14 +35,14 @@ export default function LecturerDashboard() {
   });
 
   const stats = [
-    { label: 'Courses', value: courses.length, icon: '📚', color: 'from-blue-500 to-blue-600' },
-    { label: 'Total Units', value: totalUnits, icon: '🎓', color: 'from-emerald-500 to-emerald-600' },
-    { label: 'Departments', value: Object.keys(deptCourses).length, icon: '🏛️', color: 'from-violet-500 to-violet-600' },
+    { label: 'Courses', value: courses.length, icon: '📚' },
+    { label: 'Total Units', value: totalUnits, icon: '🎓' },
+    { label: 'Departments', value: Object.keys(deptCourses).length, icon: '🏛️' },
   ];
 
   return (
     <div className="space-y-8">
-      <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-primary-800 p-8 text-white shadow-xl">
+      <div className="rounded-2xl bg-primary-600 p-8 text-white">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">Welcome, {user?.fullName || 'Lecturer'}</h1>
@@ -59,9 +59,8 @@ export default function LecturerDashboard() {
         {stats.map((s) => (
           <div
             key={s.label}
-            className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
+            className="rounded-2xl border border-gray-200 bg-white p-6"
           >
-            <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${s.color}`} />
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">{s.label}</p>
@@ -76,26 +75,26 @@ export default function LecturerDashboard() {
       <div className="flex flex-wrap gap-4">
         <button
           onClick={() => navigate('/lecturer/courses')}
-          className="rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary-600 hover:shadow-lg"
+          className="rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-600"
         >
           My Courses
         </button>
         <button
           onClick={() => navigate('/lecturer/sessions')}
-          className="rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-green-700 hover:shadow-lg"
+          className="rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-green-700"
         >
           Start Session
         </button>
         <button
           onClick={() => navigate('/lecturer/reports')}
-          className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-violet-700 hover:shadow-lg"
+          className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-700"
         >
           View Reports
         </button>
       </div>
 
       {courses.length > 0 && (
-        <div className="rounded-2xl bg-white shadow-lg">
+        <div className="rounded-2xl border border-gray-200 bg-white">
           <div className="border-b border-gray-100 px-6 py-5">
             <h2 className="text-lg font-semibold text-gray-800">Assigned Courses ({courses.length})</h2>
           </div>
