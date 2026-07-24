@@ -73,12 +73,12 @@ export default function MarkAttendance() {
             <tbody className="divide-y divide-gray-200">
               {history.map((h, i) => (
                 <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-600">{h.date ? new Date(h.date).toLocaleDateString() : '-'}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{h.course?.code || h.courseCode || '-'}</td>
-                  <td className="px-6 py-4 text-gray-600">{h.course?.title || h.courseTitle || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{h.markedAt ? new Date(h.markedAt).toLocaleDateString() : '-'}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{h.course?.courseCode || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{h.course?.courseTitle || '-'}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      h.status === 'present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      h.status === 'Present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                     }`}>
                       {h.status || '-'}
                     </span>
