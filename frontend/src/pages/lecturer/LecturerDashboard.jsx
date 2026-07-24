@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../api/axiosInstance';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
 export default function LecturerDashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,57 +24,111 @@ export default function LecturerDashboard() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (!courses.length) return;
-    const totalStudents = new Set();
-    const allSessions = [];
-    courses.forEach((c) => {
-      (c.students || []).forEach((s) => totalStudents.add(s._id || s));
-      (c.sessions || []).forEach((s) => allSessions.push(s));
-    });
-    setStats({
-      courseCount: courses.length,
-      studentCount: totalStudents.size,
-      sessionCount: allSessions.length,
-    });
-  }, [courses]);
-
   if (loading) return <LoadingSpinner />;
 
-  const cards = [
-    { label: 'Assigned Courses', value: stats?.courseCount ?? 0, color: 'bg-blue-500' },
-    { label: 'Total Students Taught', value: stats?.studentCount ?? 0, color: 'bg-green-500' },
-    { label: 'Recent Sessions', value: stats?.sessionCount ?? 0, color: 'bg-purple-500' },
+  const totalUnits = courses.reduce((sum, c) => sum + (c.unit || 0), 0);
+  const deptCourses = {};
+  courses.forEach((c) => {
+    const dept = c.department?.name || 'Uncategorised';
+    if (!deptCourses[dept]) deptCourses[dept] = [];
+    deptCourses[dept].push(c);
+  });
+
+  const stats = [
+    { label: 'Courses', value: courses.length, icon: '📚', color: 'from-blue-500 to-blue-600' },
+    { label: 'Total Units', value: totalUnits, icon: '🎓', color: 'from-emerald-500 to-emerald-600' },
+    { label: 'Departments', value: Object.keys(deptCourses).length, icon: '🏛️', color: 'from-violet-500 to-violet-600' },
   ];
 
   return (
-    <div>
-      <h1 className="mb-6 text-2xl font-bold text-primary-700">
-        Welcome, {user?.firstName || 'Lecturer'}
-      </h1>
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card) => (
-          <div
-            key={card.label}
-            className="rounded-lg bg-white p-6 shadow-md transition-shadow hover:shadow-lg"
-          >
-            <div className={`mb-4 inline-block rounded-full ${card.color} p-3 text-white`}>
-              <span className="text-xl font-bold">{card.value}</span>
+    <div className="space-y-8">
+      <div className="rounded-2xl bg-gradient-to-r from-primary-600 to-primary-800 p-8 text-white shadow-xl">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">Welcome, {user?.fullName || 'Lecturer'}</h1>
+            <p className="mt-2 text-primary-100">{user?.email}</p>
+            <div className="mt-3 flex flex-wrap gap-4 text-sm text-primary-200">
+              {user?.staffId && <span>Staff ID: {user.staffId}</span>}
+              {user?.department?.name && <span>Department: {user.department.name}</span>}
             </div>
-            <p className="text-sm font-medium text-gray-500">{card.label}</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+        {stats.map((s) => (
+          <div
+            key={s.label}
+            className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl"
+          >
+            <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${s.color}`} />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500">{s.label}</p>
+                <p className="mt-1 text-3xl font-bold text-gray-800">{s.value}</p>
+              </div>
+              <span className="text-3xl opacity-80">{s.icon}</span>
+            </div>
           </div>
         ))}
       </div>
+
+      <div className="flex flex-wrap gap-4">
+        <button
+          onClick={() => navigate('/lecturer/courses')}
+          className="rounded-xl bg-primary-500 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-primary-600 hover:shadow-lg"
+        >
+          My Courses
+        </button>
+        <button
+          onClick={() => navigate('/lecturer/sessions')}
+          className="rounded-xl bg-green-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-green-700 hover:shadow-lg"
+        >
+          Start Session
+        </button>
+        <button
+          onClick={() => navigate('/lecturer/reports')}
+          className="rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-violet-700 hover:shadow-lg"
+        >
+          View Reports
+        </button>
+      </div>
+
       {courses.length > 0 && (
-        <div className="mt-8">
-          <h2 className="mb-4 text-lg font-semibold text-gray-700">Your Courses</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {courses.slice(0, 6).map((course) => (
-              <div key={course._id} className="rounded-lg border border-gray-200 bg-white p-4">
-                <p className="text-sm font-bold text-primary-600">{course.courseCode}</p>
-                <p className="text-gray-700">{course.courseTitle}</p>
+        <div className="rounded-2xl bg-white shadow-lg">
+          <div className="border-b border-gray-100 px-6 py-5">
+            <h2 className="text-lg font-semibold text-gray-800">Assigned Courses ({courses.length})</h2>
+          </div>
+          <div className="divide-y divide-gray-50">
+            {courses.map((course) => (
+              <div
+                key={course._id}
+                className="flex flex-wrap items-center justify-between px-6 py-4 transition-colors hover:bg-gray-50"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="flex items-center gap-2">
+                    <span className="rounded-md bg-primary-100 px-2 py-0.5 text-xs font-bold text-primary-700">
+                      {course.courseCode}
+                    </span>
+                    <span className="truncate font-medium text-gray-800">{course.courseTitle}</span>
+                  </p>
+                  <p className="mt-1 text-sm text-gray-500">
+                    {course.department?.name && `${course.department.name}  ·  `}
+                    {course.unit && `${course.unit} Unit${course.unit > 1 ? 's' : ''}  ·  `}
+                    {course.level && `${course.level}L`}
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate(`/lecturer/start-session/${course._id}`)}
+                  className="shrink-0 rounded-lg bg-primary-500 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-primary-600"
+                >
+                  Start Session
+                </button>
               </div>
             ))}
+            {courses.length === 0 && (
+              <p className="px-6 py-8 text-center text-gray-400">No courses assigned yet.</p>
+            )}
           </div>
         </div>
       )}
