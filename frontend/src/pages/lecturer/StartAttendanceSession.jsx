@@ -21,9 +21,7 @@ export default function StartAttendanceSession() {
   useEffect(() => {
     const init = async () => {
       try {
-        const [coursesRes] = await Promise.all([
-          api.get('/courses'),
-        ]);
+        const [coursesRes] = await Promise.all([api.get('/courses')]);
         setCourses(coursesRes.data?.courses || coursesRes.data || []);
 
         if (paramCourseId) {
@@ -34,7 +32,7 @@ export default function StartAttendanceSession() {
             setSessionCode(active.sessionCode);
           }
         }
-      } catch (err) {
+      } catch {
         toast.error('Failed to load data');
       } finally {
         setLoading(false);
@@ -61,6 +59,15 @@ export default function StartAttendanceSession() {
     return `${h}:${m}:${s}`;
   };
 
+  const formatDuration = (start, end) => {
+    const diff = new Date(end) - new Date(start);
+    const totalSec = Math.floor(diff / 1000);
+    const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+    const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+    const s = String(totalSec % 60).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  };
+
   const startSession = useCallback(async () => {
     if (!selectedCourseId) {
       toast.warn('Please select a course');
@@ -72,7 +79,7 @@ export default function StartAttendanceSession() {
       const data = res.data?.session || res.data;
       setSession(data);
       setSessionCode(data.sessionCode);
-      setStudents(data.students || []);
+      setStudents([]);
       toast.success('Session started!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to start session');
@@ -101,9 +108,9 @@ export default function StartAttendanceSession() {
   if (loading) return <LoadingSpinner />;
 
   const getStatusBadge = (status) => {
-    if (status === 'Present') return <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Present</span>;
-    if (status === 'Absent') return <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Absent</span>;
-    return <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">Pending</span>;
+    if (status === 'Present') return <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">Present</span>;
+    if (status === 'Absent') return <span className="rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700">Absent</span>;
+    return <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-500">Pending</span>;
   };
 
   const presentCount = students.filter((s) => s.status === 'Present').length;
@@ -115,13 +122,36 @@ export default function StartAttendanceSession() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Attendance Session</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-800">Attendance Session</h1>
+        {activeCourse && (
+          <div className="text-right text-sm text-gray-500">
+            <p className="font-semibold text-gray-700">{activeCourse.courseCode}</p>
+            <p>{activeCourse.courseTitle}</p>
+          </div>
+        )}
+      </div>
 
       {!session && (
         <div className="rounded-lg border border-gray-200 bg-white p-6">
-          {paramCourseId && activeCourse && (
-            <div className="mb-4 text-sm text-gray-500">
-              Course: <span className="font-semibold text-gray-700">{activeCourse.courseCode} — {activeCourse.courseTitle}</span>
+          {activeCourse && (
+            <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <p className="text-gray-500">Level</p>
+                <p className="font-medium text-gray-800">{activeCourse.level ? `${activeCourse.level}L` : '—'}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Unit</p>
+                <p className="font-medium text-gray-800">{activeCourse.unit ?? '—'}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Department</p>
+                <p className="font-medium text-gray-800">{activeCourse.department?.name || '—'}</p>
+              </div>
+              <div>
+                <p className="text-gray-500">Semester</p>
+                <p className="font-medium text-gray-800">{activeCourse.semester || '—'}</p>
+              </div>
             </div>
           )}
           {!paramCourseId && (
@@ -141,27 +171,41 @@ export default function StartAttendanceSession() {
               </select>
             </>
           )}
-          <button
-            onClick={startSession}
-            disabled={starting}
-            className="rounded-lg bg-green-600 px-6 py-3 text-lg font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
-          >
-            {starting ? 'Starting...' : 'Start Session'}
-          </button>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-gray-500">Click start to generate a session code for students</p>
+            <button
+              onClick={startSession}
+              disabled={starting}
+              className="rounded-lg bg-green-600 px-8 py-3 text-lg font-bold text-white transition-colors hover:bg-green-700 disabled:opacity-50"
+            >
+              {starting ? 'Starting...' : 'Start Session'}
+            </button>
+          </div>
         </div>
       )}
 
       {session && (
         <>
           <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
-            <p className="mb-2 text-sm font-medium text-gray-500">Session Code</p>
+            <p className="mb-1 text-sm font-medium text-gray-500">Session Code</p>
             <p className="select-all text-6xl font-extrabold tracking-widest text-primary-700">
               {sessionCode}
             </p>
-            <p className="mt-4 text-3xl font-mono font-bold text-gray-600">
-              {formatElapsed(elapsed)}
-            </p>
-            {session.isActive && (
+            <div className="mt-4 flex items-center justify-center gap-6">
+              <div>
+                <p className="text-sm text-gray-500">{session.isActive ? 'Duration' : 'Total Duration'}</p>
+                <p className="text-2xl font-mono font-bold text-gray-600">
+                  {session.isActive ? formatElapsed(elapsed) : formatDuration(session.startTime, session.endTime)}
+                </p>
+              </div>
+              {session.isActive && (
+                <div className="border-l border-gray-200 pl-6">
+                  <p className="text-sm text-gray-500">{new Date(session.startTime).toLocaleTimeString()}</p>
+                  <p className="text-xs text-gray-400">Started</p>
+                </div>
+              )}
+            </div>
+            {session.isActive ? (
               <button
                 onClick={closeSession}
                 disabled={closing}
@@ -169,18 +213,30 @@ export default function StartAttendanceSession() {
               >
                 {closing ? 'Closing...' : 'Close Session'}
               </button>
+            ) : (
+              <div className="mt-6 rounded-lg border border-gray-100 bg-gray-50 px-6 py-3">
+                <p className="text-sm text-gray-500">
+                  Ended at {new Date(session.endTime).toLocaleTimeString()}
+                </p>
+              </div>
             )}
           </div>
 
           {!session.isActive && session.endTime && (
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
-                <p className="text-2xl font-bold text-green-700">{presentCount}</p>
-                <p className="text-sm text-green-600">Present</p>
+              <div className="rounded-lg border border-green-200 bg-green-50 p-5 text-center">
+                <p className="text-3xl font-bold text-green-700">{presentCount}</p>
+                <p className="mt-1 text-sm font-medium text-green-600">Present</p>
+                <p className="text-xs text-green-500">
+                  {students.length > 0 ? `${Math.round((presentCount / students.length) * 100)}%` : '—'}
+                </p>
               </div>
-              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
-                <p className="text-2xl font-bold text-red-700">{absentCount}</p>
-                <p className="text-sm text-red-600">Absent</p>
+              <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-center">
+                <p className="text-3xl font-bold text-red-700">{absentCount}</p>
+                <p className="mt-1 text-sm font-medium text-red-600">Absent</p>
+                <p className="text-xs text-red-500">
+                  {students.length > 0 ? `${Math.round((absentCount / students.length) * 100)}%` : '—'}
+                </p>
               </div>
             </div>
           )}
@@ -188,20 +244,36 @@ export default function StartAttendanceSession() {
           {students.length > 0 && (
             <div className="rounded-lg border border-gray-200 bg-white">
               <div className="border-b border-gray-200 px-6 py-4">
-                <h2 className="text-lg font-semibold text-gray-700">Enrolled Students</h2>
+                <h2 className="text-lg font-semibold text-gray-800">
+                  Attendance Records
+                  <span className="ml-2 text-sm font-normal text-gray-500">({students.length} students)</span>
+                </h2>
               </div>
-              <div className="divide-y divide-gray-100">
-                {students.map((student, idx) => (
-                  <div key={student._id || idx} className="flex items-center justify-between px-6 py-3">
-                    <div>
-                      <p className="font-medium text-gray-800">
-                        {student.student?.fullName || student.fullName || `${student.firstName || ''} ${student.lastName || ''}`.trim()}
-                      </p>
-                      <p className="text-sm text-gray-500">{student.student?.matricNumber || student.matricNumber || ''}</p>
-                    </div>
-                    {getStatusBadge(student.status)}
-                  </div>
-                ))}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="bg-gray-50 text-xs uppercase text-gray-500">
+                    <tr>
+                      <th className="px-6 py-3">#</th>
+                      <th className="px-6 py-3">Student Name</th>
+                      <th className="px-6 py-3">Matric Number</th>
+                      <th className="px-6 py-3">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {students.map((student, idx) => {
+                      const name = student.student?.fullName || student.fullName || '';
+                      const matric = student.student?.matricNumber || student.matricNumber || '';
+                      return (
+                        <tr key={student._id || idx} className="transition-colors hover:bg-gray-50">
+                          <td className="px-6 py-3 text-gray-400">{idx + 1}</td>
+                          <td className="px-6 py-3 font-medium text-gray-800">{name || '—'}</td>
+                          <td className="px-6 py-3 text-gray-500">{matric || '—'}</td>
+                          <td className="px-6 py-3">{getStatusBadge(student.status)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
