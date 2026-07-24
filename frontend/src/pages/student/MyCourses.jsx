@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import api from '../../api/axiosInstance';
+import { useAuth } from '../../context/AuthContext';
 
 export default function MyCourses() {
+  const { user } = useAuth();
   const [enrolled, setEnrolled] = useState([]);
   const [availableCourses, setAvailableCourses] = useState([]);
   const [sessions, setSessions] = useState([]);
@@ -12,9 +14,9 @@ export default function MyCourses() {
 
   useEffect(() => {
     api.get('/enrollments/my-courses').then((res) => setEnrolled(res.data)).catch(() => {});
-    api.get('/courses').then((res) => setAvailableCourses(res.data)).catch(() => {});
+    api.get(`/courses${user?.level ? `?level=${user.level}` : ''}`).then((res) => setAvailableCourses(res.data)).catch(() => {});
     api.get('/academic-sessions').then((res) => setSessions(res.data)).catch(() => {});
-  }, []);
+  }, [user]);
 
   const handleEnroll = async (e) => {
     e.preventDefault();
@@ -58,9 +60,9 @@ export default function MyCourses() {
             <tbody className="divide-y divide-gray-200">
               {enrolled.map((e, i) => (
                 <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">{e.course?.code || e.courseCode}</td>
-                  <td className="px-6 py-4 text-gray-600">{e.course?.title || e.courseTitle}</td>
-                  <td className="px-6 py-4 text-gray-600">{e.course?.units ?? e.units ?? '-'}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{e.course?.courseCode || e.courseCode}</td>
+                  <td className="px-6 py-4 text-gray-600">{e.course?.courseTitle || e.courseTitle}</td>
+                  <td className="px-6 py-4 text-gray-600">{e.course?.unit ?? e.unit ?? '-'}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                       e.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
@@ -95,7 +97,7 @@ export default function MyCourses() {
               <option value="">-- Select a course --</option>
               {availableCourses.map((c) => (
                 <option key={c._id || c.id} value={c._id || c.id}>
-                  {c.code} — {c.title}
+                  {c.courseCode} — {c.courseTitle}
                 </option>
               ))}
             </select>
