@@ -95,7 +95,7 @@ export default function ManageDepartments() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-primary-700">Manage Departments</h1>
         <button
           onClick={openAdd}

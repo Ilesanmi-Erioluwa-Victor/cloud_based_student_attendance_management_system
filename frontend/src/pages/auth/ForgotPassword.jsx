@@ -28,7 +28,7 @@ export default function ForgotPassword() {
         <div className="bg-blue-900 rounded-t-lg px-8 py-6">
           <h2 className="text-2xl font-bold text-white text-center">Forgot Password</h2>
         </div>
-        <div className="p-8">
+        <div className="p-4 sm:p-8">
           {sent ? (
             <div className="text-center">
               <div className="text-green-600 text-lg font-medium mb-2">Email Sent!</div>

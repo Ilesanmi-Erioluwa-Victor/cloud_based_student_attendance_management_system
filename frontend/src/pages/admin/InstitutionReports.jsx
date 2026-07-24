@@ -97,8 +97,8 @@ export default function InstitutionReports() {
 
   const renderCourseReport = () => (
     <div>
-      <div className="mb-4 flex items-end gap-4">
-        <div className="flex-1">
+      <div className="mb-4 flex flex-wrap items-end gap-4">
+        <div className="min-w-[200px] flex-1">
           <label className="mb-1 block text-sm font-medium text-gray-600">Select Course</label>
           <select
             value={selectedCourse}
@@ -185,8 +185,8 @@ export default function InstitutionReports() {
 
   const renderStudentReport = () => (
     <div>
-      <div className="mb-4 flex items-end gap-4">
-        <div className="relative flex-1">
+      <div className="mb-4 flex flex-wrap items-end gap-4">
+        <div className="relative min-w-[200px] flex-1">
           <label className="mb-1 block text-sm font-medium text-gray-600">Select Student</label>
           <input
             value={studentSearch}
@@ -329,12 +329,12 @@ export default function InstitutionReports() {
       <h1 className="mb-6 text-2xl font-bold text-primary-700">Institution Reports</h1>
 
       <div className="mb-6 border-b border-gray-200">
-        <nav className="flex space-x-6">
+        <nav className="flex overflow-x-auto space-x-6">
           {tabs.map((tab, i) => (
             <button
               key={tab}
               onClick={() => setActiveTab(i)}
-              className={`border-b-2 pb-3 text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap border-b-2 pb-3 text-sm font-medium transition-colors ${
                 activeTab === i
                   ? 'border-primary-500 text-primary-700'
                   : 'border-transparent text-gray-500 hover:text-gray-700'

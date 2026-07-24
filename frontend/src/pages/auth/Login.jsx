@@ -31,7 +31,7 @@ export default function Login() {
           <h2 className="text-2xl font-bold text-white text-center">Attendance System</h2>
           <p className="text-blue-200 text-center text-sm mt-1">Sign in to your account</p>
         </div>
-        <form onSubmit={handleSubmit} className="p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required

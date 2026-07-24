@@ -46,7 +46,7 @@ export default function ManageUsers() {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-primary-700">Manage Users</h1>
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap items-center gap-2">
           <label className="text-sm font-medium text-gray-500">Filter by role:</label>
           <select
             value={filterRole}

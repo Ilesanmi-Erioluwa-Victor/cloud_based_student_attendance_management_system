@@ -47,9 +47,9 @@ export default function Register() {
         <div className="bg-blue-900 rounded-t-lg px-8 py-6">
           <h2 className="text-2xl font-bold text-white text-center">Create Account</h2>
         </div>
-        <form onSubmit={handleSubmit} className="p-8 space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="col-span-2">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
               <input type="text" name="fullName" value={form.fullName} onChange={handleChange} required
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-900" />
@@ -75,7 +75,7 @@ export default function Register() {
           </div>
 
           {isStudent && (
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-200">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Faculty</label>
                 <select name="faculty" value={form.faculty} onChange={handleChange}
@@ -109,7 +109,7 @@ export default function Register() {
           )}
 
           {isLecturer && (
-            <div className="grid grid-cols-2 gap-4 pt-2 border-t border-gray-200">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-200">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
                 <select name="department" value={form.department} onChange={handleChange}

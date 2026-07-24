@@ -149,7 +149,7 @@ export default function StartAttendanceSession() {
       {!session && (
         <div className="rounded-lg border border-gray-200 bg-white p-6">
           {activeCourse && (
-            <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
+            <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-gray-500">Level</p>
                 <p className="font-medium text-gray-800">{activeCourse.level ? `${activeCourse.level}L` : '—'}</p>
@@ -237,7 +237,7 @@ export default function StartAttendanceSession() {
           </div>
 
           {!session.isActive && session.endTime && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="rounded-lg border border-green-200 bg-green-50 p-5 text-center">
                 <p className="text-3xl font-bold text-green-700">{presentCount}</p>
                 <p className="mt-1 text-sm font-medium text-green-600">Present</p>
