@@ -65,8 +65,10 @@ export default function MarkAttendance() {
             <thead className="bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
                 <th className="px-6 py-3">Date</th>
+                <th className="px-6 py-3">Session Code</th>
                 <th className="px-6 py-3">Course Code</th>
                 <th className="px-6 py-3">Course Title</th>
+                <th className="px-6 py-3">Duration</th>
                 <th className="px-6 py-3">Status</th>
               </tr>
             </thead>
@@ -74,8 +76,16 @@ export default function MarkAttendance() {
               {history.map((h, i) => (
                 <tr key={i} className="hover:bg-gray-50">
                   <td className="px-6 py-4 text-gray-600">{h.markedAt ? new Date(h.markedAt).toLocaleDateString() : '-'}</td>
+                  <td className="px-6 py-4 font-mono text-sm font-medium text-gray-900">{h.attendanceSession?.sessionCode || '-'}</td>
                   <td className="px-6 py-4 font-medium text-gray-900">{h.course?.courseCode || '-'}</td>
                   <td className="px-6 py-4 text-gray-600">{h.course?.courseTitle || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {h.attendanceSession?.startTime && h.attendanceSession?.endTime
+                      ? `${Math.round((new Date(h.attendanceSession.endTime) - new Date(h.attendanceSession.startTime)) / 60000)} min`
+                      : h.attendanceSession?.startTime
+                        ? 'Ongoing'
+                        : '-'}
+                  </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                       h.status === 'Present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
@@ -87,7 +97,7 @@ export default function MarkAttendance() {
               ))}
               {!history.length && (
                 <tr>
-                  <td colSpan="4" className="px-6 py-8 text-center text-gray-400">No attendance history yet.</td>
+                  <td colSpan="6" className="px-6 py-8 text-center text-gray-400">No attendance history yet.</td>
                 </tr>
               )}
             </tbody>

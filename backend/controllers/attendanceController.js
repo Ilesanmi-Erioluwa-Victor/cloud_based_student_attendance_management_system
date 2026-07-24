@@ -157,7 +157,7 @@ const getMyHistory = asyncHandler(async (req, res) => {
 
   const records = await AttendanceRecord.find(filter)
     .populate('course', 'courseCode courseTitle')
-    .populate('attendanceSession', 'sessionCode startTime')
+    .populate('attendanceSession', 'sessionCode startTime endTime')
     .sort({ markedAt: -1 });
 
   res.json(records);
