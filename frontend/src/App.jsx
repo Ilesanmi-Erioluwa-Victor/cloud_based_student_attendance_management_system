@@ -61,6 +61,7 @@ export default function App() {
         <Route path="/lecturer/dashboard" element={<ProtectedRoute roles={['lecturer']}><Layout><LecturerDashboard /></Layout></ProtectedRoute>} />
         <Route path="/lecturer/courses" element={<ProtectedRoute roles={['lecturer']}><Layout><MyAssignedCourses /></Layout></ProtectedRoute>} />
         <Route path="/lecturer/sessions" element={<ProtectedRoute roles={['lecturer']}><Layout><StartAttendanceSession /></Layout></ProtectedRoute>} />
+        <Route path="/lecturer/start-session/:courseId" element={<ProtectedRoute roles={['lecturer']}><Layout><StartAttendanceSession /></Layout></ProtectedRoute>} />
         <Route path="/lecturer/reports" element={<ProtectedRoute roles={['lecturer']}><Layout><CourseAttendanceReport /></Layout></ProtectedRoute>} />
 
         <Route path="/admin/dashboard" element={<ProtectedRoute roles={['admin']}><Layout><AdminDashboard /></Layout></ProtectedRoute>} />
