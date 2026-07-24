@@ -61,10 +61,9 @@ export default function CourseAttendanceReport() {
 
   if (loadingCourses) return <LoadingSpinner />;
 
-  const students = report?.students || report?.attendance || [];
-  const sorted = [...students].sort(
-    (a, b) => (a.percentage ?? 0) - (b.percentage ?? 0)
-  );
+  const sorted = report
+    ? [...report].sort((a, b) => (a.percentage ?? 0) - (b.percentage ?? 0))
+    : [];
 
   const getRowColor = (pct) => {
     if (pct >= 75) return 'bg-green-50';
@@ -78,10 +77,10 @@ export default function CourseAttendanceReport() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <h1 className="mb-6 text-2xl font-bold text-primary-700">Course Attendance Report</h1>
+    <div className="mx-auto max-w-6xl space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">Course Attendance Report</h1>
 
-      <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
+      <div className="rounded-lg border border-gray-200 bg-white p-6">
         <label className="mb-2 block text-sm font-medium text-gray-700">Select Course</label>
         <select
           value={selectedCourseId}
@@ -101,13 +100,14 @@ export default function CourseAttendanceReport() {
 
       {report && !loadingReport && (
         <>
-          <div className="mb-6 overflow-x-auto rounded-lg bg-white shadow-md">
+          <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
             {sorted.length === 0 ? (
               <p className="p-6 text-gray-500">No attendance data available.</p>
             ) : (
               <table className="w-full text-left text-sm">
                 <thead className="border-b bg-gray-50 text-xs font-medium uppercase text-gray-500">
                   <tr>
+                    <th className="px-6 py-4">#</th>
                     <th className="px-6 py-4">Student Name</th>
                     <th className="px-6 py-4">Matric Number</th>
                     <th className="px-6 py-4">Present</th>
@@ -117,18 +117,20 @@ export default function CourseAttendanceReport() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {sorted.map((student, idx) => {
-                    const pct = student.percentage ?? 0;
+                  {sorted.map((entry, idx) => {
+                    const s = entry.student || {};
+                    const pct = entry.percentage ?? 0;
                     return (
-                      <tr key={student._id || idx} className={`${getRowColor(pct)} transition-colors`}>
+                      <tr key={entry._id || idx} className={`${getRowColor(pct)} transition-colors`}>
+                        <td className="px-6 py-4 text-gray-400">{idx + 1}</td>
                         <td className="px-6 py-4 font-medium text-gray-800">
-                          {student.firstName} {student.lastName}
+                          {s.fullName || '-'}
                         </td>
                         <td className="px-6 py-4 text-gray-600">
-                          {student.matricNo || student.matricNumber || '-'}
+                          {s.matricNumber || '-'}
                         </td>
-                        <td className="px-6 py-4 text-gray-700">{student.present ?? 0}</td>
-                        <td className="px-6 py-4 text-gray-700">{student.absent ?? 0}</td>
+                        <td className="px-6 py-4 text-gray-700">{entry.sessionsPresent ?? 0}</td>
+                        <td className="px-6 py-4 text-gray-700">{entry.sessionsAbsent ?? 0}</td>
                         <td className="px-6 py-4">
                           <span
                             className={`font-semibold ${
@@ -151,7 +153,7 @@ export default function CourseAttendanceReport() {
             )}
           </div>
 
-          <div className="rounded-lg bg-white p-6 shadow-md">
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-lg font-semibold text-gray-700">Send Alerts</h2>
             <div className="flex flex-wrap items-end gap-4">
               <div>
