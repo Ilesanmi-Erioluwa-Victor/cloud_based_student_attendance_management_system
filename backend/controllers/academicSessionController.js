@@ -16,11 +16,17 @@ const getSessionById = asyncHandler(async (req, res) => {
 });
 
 const createSession = asyncHandler(async (req, res) => {
+  if (req.body.isActive) {
+    await AcademicSession.updateMany({}, { isActive: false });
+  }
   const session = await AcademicSession.create(req.body);
   res.status(201).json(session);
 });
 
 const updateSession = asyncHandler(async (req, res) => {
+  if (req.body.isActive) {
+    await AcademicSession.updateMany({ _id: { $ne: req.params.id } }, { isActive: false });
+  }
   const session = await AcademicSession.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
