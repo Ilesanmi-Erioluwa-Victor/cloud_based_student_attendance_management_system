@@ -58,7 +58,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     token,
-    user: { id: user._id, fullName: user.fullName, email: user.email, role: user.role },
+    user: { _id: user._id, fullName: user.fullName, email: user.email, role: user.role },
   });
 });
 
@@ -87,7 +87,7 @@ const loginUser = asyncHandler(async (req, res) => {
   res.json({
     token,
     user: {
-      id: user._id,
+      _id: user._id,
       fullName: user.fullName,
       email: user.email,
       role: user.role,
