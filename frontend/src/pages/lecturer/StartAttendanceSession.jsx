@@ -101,33 +101,46 @@ export default function StartAttendanceSession() {
   if (loading) return <LoadingSpinner />;
 
   const getStatusBadge = (status) => {
-    if (status === 'present') return <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Present</span>;
-    if (status === 'absent') return <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Absent</span>;
+    if (status === 'Present') return <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Present</span>;
+    if (status === 'Absent') return <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">Absent</span>;
     return <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">Pending</span>;
   };
 
-  const presentCount = students.filter((s) => s.status === 'present').length;
-  const absentCount = students.filter((s) => s.status === 'absent').length;
+  const presentCount = students.filter((s) => s.status === 'Present').length;
+  const absentCount = students.filter((s) => s.status === 'Absent').length;
+
+  const activeCourse = paramCourseId
+    ? courses.find((c) => c._id === paramCourseId)
+    : courses.find((c) => c._id === selectedCourseId);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <h1 className="mb-6 text-2xl font-bold text-primary-700">Attendance Session</h1>
+    <div className="mx-auto max-w-4xl space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">Attendance Session</h1>
 
       {!session && (
-        <div className="mb-6 rounded-lg bg-white p-6 shadow-md">
-          <label className="mb-2 block text-sm font-medium text-gray-700">Select Course</label>
-          <select
-            value={selectedCourseId}
-            onChange={(e) => setSelectedCourseId(e.target.value)}
-            className="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none"
-          >
-            <option value="">-- Choose a course --</option>
-            {courses.map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.courseCode} - {c.courseTitle}
-              </option>
-            ))}
-          </select>
+        <div className="rounded-lg border border-gray-200 bg-white p-6">
+          {paramCourseId && activeCourse && (
+            <div className="mb-4 text-sm text-gray-500">
+              Course: <span className="font-semibold text-gray-700">{activeCourse.courseCode} — {activeCourse.courseTitle}</span>
+            </div>
+          )}
+          {!paramCourseId && (
+            <>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Select Course</label>
+              <select
+                value={selectedCourseId}
+                onChange={(e) => setSelectedCourseId(e.target.value)}
+                className="mb-4 w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary-500 focus:outline-none"
+              >
+                <option value="">-- Choose a course --</option>
+                {courses.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.courseCode} - {c.courseTitle}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
           <button
             onClick={startSession}
             disabled={starting}
@@ -140,7 +153,7 @@ export default function StartAttendanceSession() {
 
       {session && (
         <>
-          <div className="mb-6 rounded-lg bg-white p-8 text-center shadow-lg">
+          <div className="rounded-lg border border-gray-200 bg-white p-8 text-center">
             <p className="mb-2 text-sm font-medium text-gray-500">Session Code</p>
             <p className="select-all text-6xl font-extrabold tracking-widest text-primary-700">
               {sessionCode}
@@ -160,12 +173,12 @@ export default function StartAttendanceSession() {
           </div>
 
           {!session.isActive && session.endTime && (
-            <div className="mb-6 grid grid-cols-2 gap-4">
-              <div className="rounded-lg bg-green-50 p-4 text-center">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
                 <p className="text-2xl font-bold text-green-700">{presentCount}</p>
                 <p className="text-sm text-green-600">Present</p>
               </div>
-              <div className="rounded-lg bg-red-50 p-4 text-center">
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center">
                 <p className="text-2xl font-bold text-red-700">{absentCount}</p>
                 <p className="text-sm text-red-600">Absent</p>
               </div>
@@ -173,7 +186,7 @@ export default function StartAttendanceSession() {
           )}
 
           {students.length > 0 && (
-            <div className="rounded-lg bg-white shadow-md">
+            <div className="rounded-lg border border-gray-200 bg-white">
               <div className="border-b border-gray-200 px-6 py-4">
                 <h2 className="text-lg font-semibold text-gray-700">Enrolled Students</h2>
               </div>
@@ -182,9 +195,9 @@ export default function StartAttendanceSession() {
                   <div key={student._id || idx} className="flex items-center justify-between px-6 py-3">
                     <div>
                       <p className="font-medium text-gray-800">
-                        {student.firstName} {student.lastName}
+                        {student.student?.fullName || student.fullName || `${student.firstName || ''} ${student.lastName || ''}`.trim()}
                       </p>
-                      <p className="text-sm text-gray-500">{student.matricNo || student.matricNumber || ''}</p>
+                      <p className="text-sm text-gray-500">{student.student?.matricNumber || student.matricNumber || ''}</p>
                     </div>
                     {getStatusBadge(student.status)}
                   </div>
