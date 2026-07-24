@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import api from '../../api/axiosInstance';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
-const emptyForm = { name: '', startDate: '', endDate: '', isCurrent: false };
+const emptyForm = { name: '', startDate: '', endDate: '', isActive: false };
 
 export default function ManageAcademicSessions() {
   const [sessions, setSessions] = useState([]);
@@ -40,7 +40,7 @@ export default function ManageAcademicSessions() {
       name: session.name || '',
       startDate: session.startDate ? session.startDate.slice(0, 10) : '',
       endDate: session.endDate ? session.endDate.slice(0, 10) : '',
-      isCurrent: session.isCurrent || false,
+      isActive: session.isActive || false,
     });
     setShowForm(true);
   };
@@ -155,14 +155,14 @@ export default function ManageAcademicSessions() {
             </div>
             <div className="flex items-center sm:col-span-2">
               <input
-                name="isCurrent"
+                name="isActive"
                 type="checkbox"
-                checked={form.isCurrent}
+                checked={form.isActive}
                 onChange={handleChange}
-                id="isCurrent"
+                id="isActive"
                 className="h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500"
               />
-              <label htmlFor="isCurrent" className="ml-2 text-sm text-gray-600">
+              <label htmlFor="isActive" className="ml-2 text-sm text-gray-600">
                 Set as current session
               </label>
             </div>
@@ -215,7 +215,7 @@ export default function ManageAcademicSessions() {
                     {s.endDate ? new Date(s.endDate).toLocaleDateString() : '—'}
                   </td>
                   <td className="px-6 py-4">
-                    {s.isCurrent ? (
+                    {s.isActive ? (
                       <span className="inline-block rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-700">
                         Current
                       </span>
@@ -224,7 +224,7 @@ export default function ManageAcademicSessions() {
                     )}
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {!s.isCurrent && (
+                    {!s.isActive && (
                       <button
                         onClick={() => handleSetCurrent(s)}
                         className="mr-2 rounded bg-green-100 px-3 py-1 text-xs font-medium text-green-700 transition-colors hover:bg-green-200"

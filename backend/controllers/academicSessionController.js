@@ -41,4 +41,18 @@ const deleteSession = asyncHandler(async (req, res) => {
   res.json({ message: 'Academic session deleted successfully' });
 });
 
-module.exports = { getSessions, getSessionById, createSession, updateSession, deleteSession };
+const setCurrentSession = asyncHandler(async (req, res) => {
+  await AcademicSession.updateMany({}, { isActive: false });
+  const session = await AcademicSession.findByIdAndUpdate(
+    req.params.id,
+    { isActive: true },
+    { new: true }
+  );
+  if (!session) {
+    res.status(404);
+    throw new Error('Academic session not found');
+  }
+  res.json(session);
+});
+
+module.exports = { getSessions, getSessionById, createSession, updateSession, deleteSession, setCurrentSession };
