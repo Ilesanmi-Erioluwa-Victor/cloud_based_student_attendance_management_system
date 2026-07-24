@@ -33,8 +33,8 @@ export default function StartAttendanceSession() {
   }, []);
 
   useEffect(() => {
-    if (session && session.startedAt) {
-      startTimeRef.current = new Date(session.startedAt).getTime();
+    if (session && session.startTime) {
+      startTimeRef.current = new Date(session.startTime).getTime();
       timerRef.current = setInterval(() => {
         setElapsed(Date.now() - startTimeRef.current);
       }, 1000);
