@@ -17,7 +17,7 @@ export default function StudentDashboard() {
   }, [user]);
 
   const overall = reports.length
-    ? (reports.reduce((sum, r) => sum + (r.attendancePercentage || 0), 0) / reports.length).toFixed(1)
+    ? (reports.reduce((sum, r) => sum + (r.percentage || 0), 0) / reports.length).toFixed(1)
     : 0;
 
   const badgeClass = (pct) => {
@@ -29,9 +29,20 @@ export default function StudentDashboard() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Student Dashboard</h1>
+      <div className="rounded-lg bg-white p-6 shadow">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Welcome, {user?.fullName || 'Student'}</h1>
+            <p className="mt-1 text-sm text-gray-500">{user?.email}</p>
+          </div>
+          <div className="flex gap-4 text-sm text-gray-500">
+            {user?.level && <p><span className="font-medium">Level:</span> {user.level}L</p>}
+            {user?.matricNumber && <p><span className="font-medium">Matric:</span> {user.matricNumber}</p>}
+          </div>
+        </div>
+      </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div className="rounded-lg bg-white p-6 shadow">
           <p className="text-sm font-medium text-gray-500">Enrolled Courses</p>
           <p className="mt-1 text-3xl font-bold text-primary-600">{enrolledCount}</p>
@@ -40,6 +51,33 @@ export default function StudentDashboard() {
           <p className="text-sm font-medium text-gray-500">Overall Attendance</p>
           <p className="mt-1 text-3xl font-bold text-primary-600">{overall}%</p>
         </div>
+        <div className="rounded-lg bg-white p-6 shadow">
+          <p className="text-sm font-medium text-gray-500">Sessions Attended</p>
+          <p className="mt-1 text-3xl font-bold text-primary-600">
+            {reports.reduce((sum, r) => sum + (r.sessionsPresent || 0), 0)}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-4">
+        <button
+          onClick={() => navigate('/courses')}
+          className="rounded-lg bg-primary-500 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-primary-600"
+        >
+          My Courses
+        </button>
+        <button
+          onClick={() => navigate('/mark-attendance')}
+          className="rounded-lg bg-green-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-green-700"
+        >
+          Mark Attendance
+        </button>
+        <button
+          onClick={() => navigate('/my-history')}
+          className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+        >
+          Attendance History
+        </button>
       </div>
 
       <div className="rounded-lg bg-white shadow">
@@ -52,24 +90,26 @@ export default function StudentDashboard() {
               <tr>
                 <th className="px-6 py-3">Course Code</th>
                 <th className="px-6 py-3">Title</th>
+                <th className="px-6 py-3">Sessions</th>
                 <th className="px-6 py-3">Attendance</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {reports.map((r, i) => (
                 <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">{r.courseCode || r.course?.code}</td>
-                  <td className="px-6 py-4 text-gray-600">{r.courseTitle || r.course?.title}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{r.course?.courseCode}</td>
+                  <td className="px-6 py-4 text-gray-600">{r.course?.courseTitle}</td>
+                  <td className="px-6 py-4 text-gray-600">{r.sessionsPresent || 0} / {r.totalSessions || 0}</td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeClass(r.attendancePercentage)}`}>
-                      {r.attendancePercentage != null ? `${r.attendancePercentage}%` : 'N/A'}
+                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${badgeClass(r.percentage)}`}>
+                      {r.percentage != null ? `${r.percentage}%` : 'N/A'}
                     </span>
                   </td>
                 </tr>
               ))}
               {!reports.length && (
                 <tr>
-                  <td colSpan="3" className="px-6 py-8 text-center text-gray-400">No course data available.</td>
+                  <td colSpan="4" className="px-6 py-8 text-center text-gray-400">No course data available.</td>
                 </tr>
               )}
             </tbody>
