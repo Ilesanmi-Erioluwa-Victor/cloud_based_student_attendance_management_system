@@ -19,18 +19,29 @@ export default function StartAttendanceSession() {
   const startTimeRef = useRef(null);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const init = async () => {
       try {
-        const res = await api.get('/courses');
-        setCourses(res.data?.courses || res.data || []);
+        const [coursesRes] = await Promise.all([
+          api.get('/courses'),
+        ]);
+        setCourses(coursesRes.data?.courses || coursesRes.data || []);
+
+        if (paramCourseId) {
+          const sessionsRes = await api.get(`/attendance/sessions/course/${paramCourseId}`);
+          const active = (sessionsRes.data || []).find((s) => s.isActive);
+          if (active) {
+            setSession(active);
+            setSessionCode(active.sessionCode);
+          }
+        }
       } catch (err) {
-        toast.error('Failed to load courses');
+        toast.error('Failed to load data');
       } finally {
         setLoading(false);
       }
     };
-    fetchCourses();
-  }, []);
+    init();
+  }, [paramCourseId]);
 
   useEffect(() => {
     if (session && session.startTime && session.isActive) {
