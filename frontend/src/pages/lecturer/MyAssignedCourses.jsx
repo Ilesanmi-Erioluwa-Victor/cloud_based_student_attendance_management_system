@@ -44,7 +44,7 @@ export default function MyAssignedCourses() {
                 Unit: <span className="font-medium">{course.unit ?? 'N/A'}</span>
               </p>
               <p className="mb-4 text-sm text-gray-500">
-                Department: <span className="font-medium">{course.department ?? 'N/A'}</span>
+                Department: <span className="font-medium">{course.department?.name ?? 'N/A'}</span>
               </p>
               <button
                 onClick={() => navigate(`/lecturer/start-session/${course._id}`)}

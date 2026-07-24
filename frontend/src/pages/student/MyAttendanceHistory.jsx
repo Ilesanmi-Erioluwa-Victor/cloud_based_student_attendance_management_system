@@ -7,7 +7,7 @@ export default function MyAttendanceHistory() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    api.get('/api/attendance/my-history').then((res) => {
+    api.get('/attendance/my-history').then((res) => {
       setAllRecords(res.data);
       const unique = [...new Set((res.data || []).map((r) => r.course?.code || r.courseCode).filter(Boolean))];
       setCourses(unique);

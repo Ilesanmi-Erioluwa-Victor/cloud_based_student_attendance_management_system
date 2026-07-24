@@ -11,9 +11,9 @@ export default function MyCourses() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    api.get('/api/enrollments/my-courses').then((res) => setEnrolled(res.data)).catch(() => {});
-    api.get('/api/courses').then((res) => setAvailableCourses(res.data)).catch(() => {});
-    api.get('/api/academic-sessions').then((res) => setSessions(res.data)).catch(() => {});
+    api.get('/enrollments/my-courses').then((res) => setEnrolled(res.data)).catch(() => {});
+    api.get('/courses').then((res) => setAvailableCourses(res.data)).catch(() => {});
+    api.get('/academic-sessions').then((res) => setSessions(res.data)).catch(() => {});
   }, []);
 
   const handleEnroll = async (e) => {
@@ -24,11 +24,11 @@ export default function MyCourses() {
     }
     setSubmitting(true);
     try {
-      await api.post('/api/enrollments', { courseId, academicSession });
+      await api.post('/enrollments', { courseId, academicSession });
       toast.success('Enrolled successfully!');
       setCourseId('');
       setAcademicSession('');
-      const res = await api.get('/api/enrollments/my-courses');
+      const res = await api.get('/enrollments/my-courses');
       setEnrolled(res.data);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Enrollment failed.');

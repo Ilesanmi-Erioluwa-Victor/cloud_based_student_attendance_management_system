@@ -8,7 +8,7 @@ export default function MarkAttendance() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    api.get('/api/attendance/my-history').then((res) => setHistory(res.data)).catch(() => {});
+    api.get('/attendance/my-history').then((res) => setHistory(res.data)).catch(() => {});
   }, []);
 
   const handleSubmit = async (e) => {
@@ -19,10 +19,10 @@ export default function MarkAttendance() {
     }
     setSubmitting(true);
     try {
-      await api.post('/api/attendance/mark', { sessionCode: sessionCode.trim() });
+      await api.post('/attendance/mark', { sessionCode: sessionCode.trim() });
       toast.success('Attendance marked successfully!');
       setSessionCode('');
-      const res = await api.get('/api/attendance/my-history');
+      const res = await api.get('/attendance/my-history');
       setHistory(res.data);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to mark attendance.');

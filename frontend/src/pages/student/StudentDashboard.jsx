@@ -11,7 +11,7 @@ export default function StudentDashboard() {
 
   useEffect(() => {
     api.get(`/api/reports/student/${user.id}`).then((res) => setReports(res.data)).catch(() => {});
-    api.get('/api/enrollments/my-courses').then((res) => {
+    api.get('/enrollments/my-courses').then((res) => {
       setEnrolledCount(Array.isArray(res.data) ? res.data.length : 0);
     }).catch(() => {});
   }, [user]);
