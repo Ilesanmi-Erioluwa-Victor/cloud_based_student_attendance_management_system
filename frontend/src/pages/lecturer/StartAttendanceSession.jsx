@@ -22,7 +22,8 @@ export default function StartAttendanceSession() {
     const init = async () => {
       try {
         const [coursesRes] = await Promise.all([api.get('/courses')]);
-        setCourses(coursesRes.data?.courses || coursesRes.data || []);
+        const allCourses = coursesRes.data?.courses || coursesRes.data || [];
+        setCourses(allCourses);
 
         if (paramCourseId) {
           const sessionsRes = await api.get(`/attendance/sessions/course/${paramCourseId}`);
@@ -30,6 +31,19 @@ export default function StartAttendanceSession() {
           if (active) {
             setSession(active);
             setSessionCode(active.sessionCode);
+          }
+        } else {
+          for (const course of allCourses) {
+            try {
+              const sessionsRes = await api.get(`/attendance/sessions/course/${course._id}`);
+              const active = (sessionsRes.data || []).find((s) => s.isActive);
+              if (active) {
+                setSession(active);
+                setSessionCode(active.sessionCode);
+                setSelectedCourseId(course._id);
+                break;
+              }
+            } catch {}
           }
         }
       } catch {
