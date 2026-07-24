@@ -1,0 +1,13 @@
+const express = require('express');
+const router = express.Router();
+const { getSessions, getSessionById, createSession, updateSession, deleteSession } = require('../controllers/academicSessionController');
+const { protect } = require('../middleware/authMiddleware');
+const { authorizeRoles } = require('../middleware/roleMiddleware');
+
+router.get('/', getSessions);
+router.get('/:id', getSessionById);
+router.post('/', protect, authorizeRoles('admin'), createSession);
+router.put('/:id', protect, authorizeRoles('admin'), updateSession);
+router.delete('/:id', protect, authorizeRoles('admin'), deleteSession);
+
+module.exports = router;

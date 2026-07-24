@@ -1,0 +1,738 @@
+================================================================================
+DESIGN AND IMPLEMENTATION OF A CLOUD-BASED STUDENT ATTENDANCE
+MANAGEMENT SYSTEM (TERTIARY INSTITUTION)
+STEP-BY-STEP SCAFFOLDING GUIDE & PROMPTS
+(Stack: React + Tailwind CSS (frontend) | Node.js/Express (backend) |
+MongoDB Atlas (database) | Brevo (transactional email) | Deployed on
+Render — 100% browser-based, ZERO local installs)
+================================================================================
+
+HOW TO USE THIS FILE
+--------------------------------------------------------------------------------
+Each step below has:
+  (a) a short explanation of what you're building, and
+  (b) a ready-to-use PROMPT you can paste into an AI coding assistant
+      (Claude Code, Cursor, Copilot Chat, ChatGPT, etc.) to generate that
+      part of the project.
+
+Work through the steps IN ORDER. Each prompt assumes the previous steps
+already exist in your project repository, so paste them one at a time and
+let the assistant finish one step before moving to the next.
+
+Tech stack: React + Tailwind CSS (frontend) | Node.js + Express (backend,
+REST API) | MongoDB Atlas via Mongoose (database) | Brevo API (attendance
+alerts, welcome emails, password resets) | Render (hosting, two services:
+one for the API, one for the frontend)
+
+NOTHING is installed on your machine — no Node.js, no MongoDB, no local
+package manager. Everything happens in the browser:
+  - Code lives in a GitHub repository, edited via GitHub's web editor
+    (github.dev) or GitHub Codespaces (full cloud dev environment with a
+    terminal, opens in the browser — no download).
+  - The database lives on MongoDB Atlas (cloud).
+  - Emails are sent through Brevo's API (cloud).
+  - The app is built and run on Render (cloud) directly from your
+    repository — Render installs dependencies and starts both services
+    for you.
+  - Testing happens against your live Render URLs after each deploy.
+
+================================================================================
+STEP 0 — PREREQUISITES (do this yourself, no prompt needed, no installs)
+================================================================================
+1. Create a free GitHub account at https://github.com (if you don't have
+   one) and create a new empty repository, e.g. "attendance-system".
+2. To edit files without installing anything: either
+   a. Use GitHub's built-in web editor — press "." on the repo page to
+      open a full VS-Code-like editor in the browser at github.dev, or
+   b. Use GitHub Codespaces (Code → Create codespace on main) — a full
+      cloud VS Code environment with a terminal, still 100% in-browser.
+3. Create a free MongoDB Atlas account at https://www.mongodb.com/atlas
+   and create a free (M0) cluster. From there:
+   - Create a database user (username + password).
+   - Under Network Access, allow access from anywhere (0.0.0.0/0), since
+     Render's IPs are dynamic.
+   - Copy the connection string (looks like
+     mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/attendance_db)
+     — you'll paste this into Render's dashboard later, not into any file.
+4. Create a free Brevo account at https://www.brevo.com, verify a sender
+   email/domain, and generate an API key under
+   Settings → SMTP & API → API Keys. Keep this key ready for Render's
+   dashboard too.
+5. Create a free Render account at https://render.com and connect it to
+   your GitHub account.
+
+Nothing to download. Everything else happens by pasting the prompts below
+into your AI assistant inside the GitHub web editor / Codespaces,
+committing, pushing, and letting Render build and deploy.
+
+================================================================================
+STEP 1 — MONOREPO PROJECT STRUCTURE
+================================================================================
+WHAT IT DOES: Creates the skeleton for a client (React) and server
+(Node/Express) living in one repository, deployed as two separate Render
+services from the same repo.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Create the folder and file structure for a MERN-stack (MongoDB, Express,
+React, Node.js) web application called "Cloud-Based Student Attendance
+Management System" for a tertiary institution, organized as a monorepo
+with a /client and /server folder, designed to be installed and run
+entirely by Render (no local Node.js installation — the developer only
+edits files in a browser-based editor and pushes to GitHub). Use this
+exact layout and create each file as an empty placeholder with a one-line
+comment describing its purpose:
+
+attendance-system/
+├── client/                          (React + Tailwind app)
+│   ├── src/
+│   │   ├── api/
+│   │   │   └── axiosInstance.js
+│   │   ├── context/
+│   │   │   └── AuthContext.jsx
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   └── LoadingSpinner.jsx
+│   │   ├── pages/
+│   │   │   ├── auth/
+│   │   │   │   ├── Login.jsx
+│   │   │   │   ├── Register.jsx
+│   │   │   │   └── ForgotPassword.jsx
+│   │   │   ├── student/
+│   │   │   │   ├── StudentDashboard.jsx
+│   │   │   │   ├── MyCourses.jsx
+│   │   │   │   ├── MarkAttendance.jsx
+│   │   │   │   └── MyAttendanceHistory.jsx
+│   │   │   ├── lecturer/
+│   │   │   │   ├── LecturerDashboard.jsx
+│   │   │   │   ├── MyAssignedCourses.jsx
+│   │   │   │   ├── StartAttendanceSession.jsx
+│   │   │   │   └── CourseAttendanceReport.jsx
+│   │   │   └── admin/
+│   │   │       ├── AdminDashboard.jsx
+│   │   │       ├── ManageDepartments.jsx
+│   │   │       ├── ManageCourses.jsx
+│   │   │       ├── ManageUsers.jsx
+│   │   │       └── InstitutionReports.jsx
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── index.html
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── vite.config.js
+│   └── package.json
+├── server/                          (Node.js + Express API)
+│   ├── config/
+│   │   ├── db.js
+│   │   └── brevo.js
+│   ├── models/
+│   │   ├── User.js
+│   │   ├── Department.js
+│   │   ├── Course.js
+│   │   ├── Enrollment.js
+│   │   ├── AttendanceSession.js
+│   │   └── AttendanceRecord.js
+│   ├── controllers/
+│   │   ├── authController.js
+│   │   ├── userController.js
+│   │   ├── departmentController.js
+│   │   ├── courseController.js
+│   │   ├── enrollmentController.js
+│   │   ├── attendanceController.js
+│   │   └── reportController.js
+│   ├── routes/
+│   │   ├── authRoutes.js
+│   │   ├── userRoutes.js
+│   │   ├── departmentRoutes.js
+│   │   ├── courseRoutes.js
+│   │   ├── enrollmentRoutes.js
+│   │   ├── attendanceRoutes.js
+│   │   └── reportRoutes.js
+│   ├── middleware/
+│   │   ├── authMiddleware.js
+│   │   ├── roleMiddleware.js
+│   │   └── errorMiddleware.js
+│   ├── utils/
+│   │   └── sendEmail.js
+│   ├── server.js
+│   └── package.json
+├── .gitignore
+└── README.md
+
+Do not add any application logic yet — just the structure and placeholder
+comments. Do not create any .env file with real values — only document
+required variable names in README.md.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 2 — BACKEND BASE SETUP (Express server + MongoDB Atlas connection)
+================================================================================
+WHAT IT DOES: Gets a minimal Express server running and connected to your
+cloud MongoDB Atlas cluster, using environment variables that will be
+entered into Render's dashboard (never into a file).
+
+PROMPT:
+--------------------------------------------------------------------------------
+Set up the base of the /server Express application:
+
+1. server/package.json: include express, mongoose, dotenv, cors,
+   bcryptjs, jsonwebtoken, express-async-handler, sib-api-v3-sdk (Brevo's
+   official Node SDK), and nodemon as a dev dependency. Add a "start"
+   script (node server.js) and a "dev" script (nodemon server.js).
+
+2. server/config/db.js: connect to MongoDB Atlas using mongoose.connect()
+   with the connection string read from process.env.MONGO_URI (never
+   hardcoded). Log a clear success or failure message. Exit the process on
+   connection failure.
+
+3. server/server.js:
+   - Load environment variables with dotenv.
+   - Initialize Express, enable cors() and express.json().
+   - Call the db.js connection function.
+   - Add a simple GET /api/health route returning { status: "ok" }.
+   - Listen on process.env.PORT (Render assigns this dynamically — do not
+     hardcode a port; default to 5000 only when PORT is undefined, for
+     reference).
+   - Add a placeholder for mounting the route files created in later
+     steps (with comments showing where each will be added).
+
+4. README.md: add a "Environment Variables" section listing (name only,
+   no real values): MONGO_URI, JWT_SECRET, BREVO_API_KEY,
+   BREVO_SENDER_EMAIL, CLIENT_URL — noting these are set in Render's
+   dashboard under each service's Environment tab, never committed to the
+   repo.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 3 — DATABASE MODELS (Mongoose schemas)
+================================================================================
+WHAT IT DOES: Defines the MongoDB collections for a tertiary-institution
+attendance system — users with roles, departments, courses, enrollments,
+attendance sessions, and individual attendance records.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Create Mongoose schemas/models for a tertiary-institution attendance
+system:
+
+1. models/User.js:
+   - fields: fullName, email (unique), password (hashed), role (enum:
+     'student', 'lecturer', 'admin'), matricNumber (unique, required only
+     when role is 'student'), staffId (unique, required only when role is
+     'lecturer'), department (ObjectId ref Department), level (e.g. 100,
+     200, 300, 400 — required only for students), isActive (Boolean,
+     default true), createdAt (timestamps: true).
+   - Add a pre-save hook that hashes the password with bcryptjs if it was
+     modified.
+   - Add an instance method comparePassword(candidatePassword) using
+     bcrypt.compare.
+
+2. models/Department.js: fields: name (unique), code (unique, e.g. "CSC"),
+   faculty (String).
+
+3. models/Course.js: fields: courseCode (unique, e.g. "CSC301"),
+   courseTitle, unit (Number), department (ObjectId ref Department),
+   level (Number), semester (enum: 'First', 'Second'), lecturer (ObjectId
+   ref User, role lecturer).
+
+4. models/Enrollment.js: fields: student (ObjectId ref User), course
+   (ObjectId ref Course), academicSession (String, e.g. "2025/2026"),
+   enrolledAt (timestamps: true). Add a compound unique index on
+   (student, course, academicSession) so a student cannot double-enroll
+   in the same course in the same session.
+
+5. models/AttendanceSession.js: fields: course (ObjectId ref Course),
+   lecturer (ObjectId ref User), sessionCode (String, unique, short
+   random code generated when a lecturer opens a session),
+   date (Date, default now), startTime (Date), endTime (Date, nullable —
+   session is "open" while null), isActive (Boolean, default true).
+
+6. models/AttendanceRecord.js: fields: attendanceSession (ObjectId ref
+   AttendanceSession), student (ObjectId ref User), course (ObjectId ref
+   Course), markedAt (Date, default now), status (enum: 'Present',
+   'Absent', default 'Present'). Add a compound unique index on
+   (attendanceSession, student) so a student cannot mark attendance twice
+   in the same session.
+
+Add clear comments above each schema explaining its purpose in the system.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 4 — AUTH MODULE (register, login, JWT, role-based middleware)
+================================================================================
+WHAT IT DOES: Lets students, lecturers, and admins register/login securely,
+issues JWTs, and protects routes by role.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the authentication system for the attendance system:
+
+1. controllers/authController.js:
+   - registerUser: creates a new User (student/lecturer/admin as
+     specified in the request body), validates required role-specific
+     fields (matricNumber for students, staffId for lecturers), rejects
+     duplicate emails/matric numbers/staff IDs with clear messages,
+     hashes the password automatically via the model's pre-save hook, and
+     sends a welcome email via utils/sendEmail.js (built in Step 6) after
+     successful registration — do not block the response on email
+     failure, just log it.
+   - loginUser: verifies email + password with comparePassword(), checks
+     isActive, and on success returns a signed JWT (7-day expiry,
+     containing userId and role) plus basic user info (excluding
+     password).
+   - getMe: returns the currently authenticated user's profile from the
+     JWT (via middleware).
+
+2. middleware/authMiddleware.js: verifies the JWT from the
+   Authorization: Bearer <token> header, attaches the decoded user to
+   req.user, and returns 401 if missing/invalid.
+
+3. middleware/roleMiddleware.js: exports a function authorizeRoles(...roles)
+   that returns middleware rejecting the request with 403 if
+   req.user.role is not in the allowed list.
+
+4. middleware/errorMiddleware.js: a generic Express error handler that
+   returns JSON { message } and never leaks stack traces or raw database
+   errors in production.
+
+5. routes/authRoutes.js: POST /api/auth/register, POST /api/auth/login,
+   GET /api/auth/me (protected by authMiddleware).
+
+Use process.env.JWT_SECRET for signing tokens — never hardcode a secret.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 5 — BREVO EMAIL INTEGRATION
+================================================================================
+WHAT IT DOES: A reusable email-sending utility using Brevo's API (not raw
+SMTP), used for welcome emails, low-attendance alerts, and password resets.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Set up Brevo transactional email integration:
+
+1. config/brevo.js: initialize the sib-api-v3-sdk client using
+   process.env.BREVO_API_KEY (never hardcoded), and export a configured
+   TransactionalEmailsApi instance.
+
+2. utils/sendEmail.js: export an async function
+   sendEmail({ to, subject, htmlContent }) that:
+   - Uses the Brevo client from config/brevo.js.
+   - Sets the sender to process.env.BREVO_SENDER_EMAIL (also read from
+     env, not hardcoded) with a sender name like "Attendance System".
+   - Sends the email and returns the Brevo response, or throws a clear
+     error on failure that calling code can catch and log without
+     crashing the request.
+
+3. Update controllers/authController.js's registerUser to call
+   sendEmail() with a simple welcome HTML template (institution name
+   placeholder, "Welcome to the Attendance Management System" message).
+
+4. Add a placeholder function in utils/sendEmail.js called
+   sendLowAttendanceAlert(student, course, percentage) that builds and
+   sends an HTML email warning the student their attendance for a given
+   course has fallen below a threshold — to be wired up in Step 9
+   (reporting module).
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 6 — DEPARTMENT & COURSE MANAGEMENT (Admin)
+================================================================================
+WHAT IT DOES: Lets an admin set up the academic structure — departments and
+courses — that everything else (enrollment, attendance) depends on.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build department and course management, restricted to role 'admin' via
+authMiddleware + authorizeRoles('admin'):
+
+1. controllers/departmentController.js + routes/departmentRoutes.js:
+   full CRUD (create, list, update, delete) for Department documents.
+
+2. controllers/courseController.js + routes/courseRoutes.js:
+   full CRUD for Course documents, with the create/update endpoints
+   validating that the referenced department exists and, if a lecturer id
+   is provided, that the referenced user has role 'lecturer'. Add a GET
+   endpoint that lists courses filterable by department, level, and
+   semester via query params.
+
+Mount both route files in server.js under /api/departments and
+/api/courses.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 7 — STUDENT COURSE ENROLLMENT
+================================================================================
+WHAT IT DOES: Lets logged-in students register for courses each academic
+session, and lets admins/lecturers view who's enrolled.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the enrollment module, protected by authMiddleware:
+
+1. controllers/enrollmentController.js + routes/enrollmentRoutes.js:
+   - POST /api/enrollments (role: student) — enroll the logged-in student
+     in a course + academicSession, rejecting duplicates using the unique
+     index from Step 3 with a clear error message.
+   - GET /api/enrollments/my-courses (role: student) — list the logged-in
+     student's enrolled courses for a given academicSession (query param).
+   - GET /api/enrollments/course/:courseId (roles: lecturer, admin) —
+     list all students enrolled in a course, restricted for lecturers to
+     only courses they are assigned to teach.
+   - DELETE /api/enrollments/:id (role: student, own enrollment only, or
+     admin) — drop a course.
+
+Mount the route file in server.js under /api/enrollments.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 8 — ATTENDANCE SESSION & RECORDING MODULE
+================================================================================
+WHAT IT DOES: The core feature — a lecturer opens an attendance "session"
+for a class period, and enrolled students mark themselves present using a
+short code within a time window.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the attendance session and recording module, protected by
+authMiddleware:
+
+1. controllers/attendanceController.js + routes/attendanceRoutes.js:
+   - POST /api/attendance/sessions (role: lecturer) — start a new
+     AttendanceSession for a course the lecturer teaches, generating a
+     short random sessionCode (e.g. 6 characters), setting startTime to
+     now, and isActive true.
+   - PATCH /api/attendance/sessions/:id/close (role: lecturer, own session
+     only) — set endTime to now and isActive to false. After closing, for
+     every enrolled student in the course who does NOT have an
+     AttendanceRecord for this session, create one with status 'Absent'
+     (so absentees are recorded, not just missing data).
+   - POST /api/attendance/mark (role: student) — body: { sessionCode }.
+     Look up the active AttendanceSession by code, verify it isActive and
+     the student is enrolled in that course, then create an
+     AttendanceRecord with status 'Present' for the logged-in student —
+     rejecting duplicates via the unique index from Step 3 with a clear
+     "already marked" message. Reject if the session is closed or the
+     code doesn't exist.
+   - GET /api/attendance/sessions/course/:courseId (roles: lecturer,
+     admin) — list all sessions for a course with counts of present vs
+     absent.
+   - GET /api/attendance/my-history (role: student) — list the logged-in
+     student's attendance records across all courses, optionally filtered
+     by course via query param.
+
+Mount the route file in server.js under /api/attendance.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 9 — REPORTING MODULE (with low-attendance email alerts)
+================================================================================
+WHAT IT DOES: Calculates attendance percentages per student/course,
+surfaces institution-wide stats for admins, and triggers Brevo alert
+emails for students falling below a set threshold.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the reporting module, protected by authMiddleware:
+
+1. controllers/reportController.js + routes/reportRoutes.js:
+   - GET /api/reports/course/:courseId (roles: lecturer, admin) — for
+     each enrolled student, calculate: total sessions held, sessions
+     present, sessions absent, and attendance percentage. Return as a
+     sorted list (lowest percentage first).
+   - GET /api/reports/student/:studentId (roles: student [self], lecturer,
+     admin) — a per-course breakdown of the given student's attendance
+     percentage across all their enrolled courses.
+   - GET /api/reports/institution-summary (role: admin) — aggregate stats
+     across the whole institution: total students, total lecturers, total
+     active courses, and overall average attendance percentage this
+     academic session.
+   - POST /api/reports/course/:courseId/send-alerts (roles: lecturer,
+     admin) — recompute attendance percentages for the course, and for
+     every student below a threshold (default 75%, accept an optional
+     `threshold` query param), call sendLowAttendanceAlert() from Step 5.
+     Return a summary of how many alert emails were sent.
+
+Mount the route file in server.js under /api/reports.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 10 — REACT + TAILWIND FRONTEND SETUP
+================================================================================
+WHAT IT DOES: Scaffolds the React app (Vite), configures Tailwind, and
+sets up API calls, auth context, and protected routing by role.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Set up the base of the /client React application (built with Vite):
+
+1. client/package.json: include react, react-dom, react-router-dom, axios,
+   and devDependencies for vite, tailwindcss, postcss, autoprefixer.
+
+2. tailwind.config.js + postcss.config.js: standard Tailwind v3 setup
+   scanning ./index.html and ./src/**/*.{js,jsx}. Define a small custom
+   color palette themed for an academic institution (deep blue primary,
+   a complementary accent color).
+
+3. src/api/axiosInstance.js: a configured axios instance with baseURL
+   read from import.meta.env.VITE_API_URL (never hardcoded — this will
+   point at the deployed Render API URL), and a request interceptor that
+   attaches the JWT from localStorage as an Authorization: Bearer header.
+
+4. src/context/AuthContext.jsx: a React context providing { user, login,
+   logout, loading }, persisting the JWT + user info in localStorage,
+   and exposing a login(email, password) function that calls
+   POST /api/auth/login via axiosInstance.
+
+5. src/components/ProtectedRoute.jsx: a wrapper component that redirects
+   to /login if no user is authenticated, and optionally restricts access
+   to an allowed list of roles (redirecting to a "not authorized" page
+   otherwise).
+
+6. src/App.jsx: set up react-router-dom routes for /login, /register,
+   /forgot-password, and role-scoped route groups: /student/*,
+   /lecturer/*, /admin/*, each wrapped in ProtectedRoute with the
+   appropriate role.
+
+7. src/main.jsx and index.html: standard Vite React entry point, with
+   Tailwind's base/components/utilities imported in a global CSS file.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 11 — AUTH PAGES (Login, Register, Forgot Password)
+================================================================================
+WHAT IT DOES: The screens every user starts at.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the authentication pages using Tailwind CSS for styling and the
+AuthContext/axiosInstance from Step 10:
+
+1. pages/auth/Login.jsx: email + password form, calls AuthContext's
+   login(), redirects to /student, /lecturer, or /admin based on the
+   returned user's role, shows a clear error on failure, and includes a
+   loading state on the submit button.
+
+2. pages/auth/Register.jsx: a form that adapts its fields based on a
+   selected role (student/lecturer/admin dropdown) — showing matricNumber
+   + department + level fields only for 'student', staffId + department
+   for 'lecturer'. On submit, calls POST /api/auth/register, then
+   redirects to /login with a success message.
+
+3. pages/auth/ForgotPassword.jsx: a simple email-input form (backend
+   endpoint can be a placeholder for now — just wire up the UI and an
+   axios call to a not-yet-built POST /api/auth/forgot-password).
+
+Use a clean, centered card layout, consistent with a tertiary institution
+portal (not playful/childlike styling).
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 12 — STUDENT DASHBOARD & PAGES
+================================================================================
+WHAT IT DOES: What a student sees — their courses, a way to mark
+attendance, and their attendance history.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the student-facing pages (Tailwind CSS, using axiosInstance,
+wrapped by the /student ProtectedRoute layout with Navbar + Sidebar from
+Step 10's components):
+
+1. pages/student/StudentDashboard.jsx: summary cards showing number of
+   enrolled courses this session and overall attendance percentage across
+   all courses (fetched from GET /api/reports/student/:studentId using
+   the logged-in user's id from AuthContext).
+
+2. pages/student/MyCourses.jsx: list of enrolled courses (from
+   GET /api/enrollments/my-courses) with a form to enroll in a new course
+   (fetching available courses from GET /api/courses filtered by the
+   student's department/level, with a dropdown to pick academicSession).
+
+3. pages/student/MarkAttendance.jsx: a single input field for the
+   session code + submit button, calling POST /api/attendance/mark, with
+   clear success/error feedback (e.g. "Attendance marked for CSC301" or
+   "Invalid or expired code").
+
+4. pages/student/MyAttendanceHistory.jsx: a table of the student's
+   attendance records (from GET /api/attendance/my-history), filterable
+   by course, showing date, course, and status with color-coded badges
+   (green=Present, red=Absent).
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 13 — LECTURER DASHBOARD & PAGES
+================================================================================
+WHAT IT DOES: What a lecturer sees — their assigned courses, starting/
+closing attendance sessions, and per-course reports.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the lecturer-facing pages (Tailwind CSS, using axiosInstance,
+wrapped by the /lecturer ProtectedRoute layout):
+
+1. pages/lecturer/LecturerDashboard.jsx: summary cards showing number of
+   assigned courses and total students taught this session.
+
+2. pages/lecturer/MyAssignedCourses.jsx: list of courses where
+   lecturer === logged-in user (fetched via GET /api/courses filtered by
+   lecturer id), each with a "Start Attendance Session" button linking to
+   StartAttendanceSession.jsx.
+
+3. pages/lecturer/StartAttendanceSession.jsx: a button to call
+   POST /api/attendance/sessions for the selected course, then
+   prominently display the generated sessionCode (large, easy to read out
+   or project on a screen) along with a live countdown/timer and a
+   "Close Session" button calling PATCH /api/attendance/sessions/:id/close.
+   After closing, show a summary of present vs absent counts.
+
+4. pages/lecturer/CourseAttendanceReport.jsx: table from
+   GET /api/reports/course/:courseId showing each student's name, matric
+   number, sessions present/absent, and percentage — sorted lowest first
+   — plus a "Send Low-Attendance Alerts" button calling
+   POST /api/reports/course/:courseId/send-alerts with a threshold input.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 14 — ADMIN DASHBOARD & PAGES
+================================================================================
+WHAT IT DOES: Institution-wide administrative control.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Build the admin-facing pages (Tailwind CSS, using axiosInstance, wrapped
+by the /admin ProtectedRoute layout):
+
+1. pages/admin/AdminDashboard.jsx: institution-wide summary cards from
+   GET /api/reports/institution-summary (total students, lecturers,
+   active courses, average attendance).
+
+2. pages/admin/ManageDepartments.jsx: full CRUD UI (table + add/edit
+   modal forms) against /api/departments.
+
+3. pages/admin/ManageCourses.jsx: full CRUD UI against /api/courses,
+   including assigning a lecturer via a searchable dropdown of users with
+   role 'lecturer'.
+
+4. pages/admin/ManageUsers.jsx: table of all users with filters by role
+   and department, and a toggle to activate/deactivate an account
+   (add and wire up a corresponding PATCH endpoint in
+   controllers/userController.js + routes/userRoutes.js if not already
+   present, restricted to role 'admin').
+
+5. pages/admin/InstitutionReports.jsx: a page combining a department
+   filter and a course filter to drill into any course's attendance
+   report (reusing the same data as CourseAttendanceReport.jsx from
+   Step 13, but accessible institution-wide, not just to the owning
+   lecturer).
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 15 — SECURITY HARDENING PASS
+================================================================================
+WHAT IT DOES: A final review pass across the whole codebase.
+
+PROMPT:
+--------------------------------------------------------------------------------
+Review the entire attendance-system codebase (both /client and /server)
+and:
+1. Confirm every mutating backend route is protected by authMiddleware
+   and, where appropriate, authorizeRoles().
+2. Confirm passwords are never returned in any API response (use
+   .select('-password') or a toJSON transform on the User model).
+3. Confirm all Mongoose queries that take user input use proper schema
+   validation/casting rather than raw string interpolation, to prevent
+   NoSQL injection via operator injection (e.g. sanitize req.body/query
+   so keys like "$gt" cannot be injected into query filters).
+4. Add rate limiting (express-rate-limit) on /api/auth/login and
+   /api/auth/register to slow down brute-force attempts.
+5. Confirm JWT_SECRET, MONGO_URI, and BREVO_API_KEY are only ever read
+   from process.env, with the server failing to start with a clear error
+   if any required variable is missing.
+6. Confirm CORS on the server is restricted to the deployed frontend's
+   Render URL (via process.env.CLIENT_URL) rather than left wide open, in
+   production.
+7. Make sure error messages returned to the client never leak stack
+   traces or raw database error text.
+Summarize every fix made in a short changelog at the end.
+--------------------------------------------------------------------------------
+
+================================================================================
+STEP 16 — PUSH TO GITHUB & DEPLOY TO RENDER (two services)
+================================================================================
+WHAT IT DOES: Gets your code onto GitHub and deploys the backend and
+frontend as two separate Render services, connected to MongoDB Atlas and
+Brevo — this is also how you'll run the app for the first time.
+
+DO THIS YOURSELF (all in the browser, no installs):
+1. In the GitHub web editor or Codespaces, commit all files via the
+   Source Control panel and push to your GitHub repository.
+2. Deploy the backend:
+   - Render → New → Web Service → connect your repo.
+   - Set "Root Directory" to `server`.
+   - Build Command: npm install
+   - Start Command: npm start
+   - Add Environment Variables: MONGO_URI, JWT_SECRET, BREVO_API_KEY,
+     BREVO_SENDER_EMAIL, CLIENT_URL (fill CLIENT_URL in after step 3,
+     once you know the frontend's URL).
+   - Deploy, and note the resulting URL (e.g.
+     https://attendance-api.onrender.com).
+3. Deploy the frontend:
+   - Render → New → Static Site → connect the same repo.
+   - Set "Root Directory" to `client`.
+   - Build Command: npm install && npm run build
+   - Publish Directory: dist
+   - Add Environment Variable: VITE_API_URL set to the backend URL from
+     step 2 (e.g. https://attendance-api.onrender.com/api).
+   - Deploy, and note the resulting URL (e.g.
+     https://attendance-system.onrender.com).
+4. Go back to the backend service's Environment tab and set CLIENT_URL to
+   the frontend URL from step 3, then trigger a manual redeploy so CORS
+   picks it up correctly.
+5. Open the frontend URL to confirm the login/register pages load and can
+   reach the API.
+
+Every push to GitHub afterward triggers Render to automatically rebuild
+and redeploy both services.
+
+================================================================================
+STEP 17 — MANUAL TEST PASS
+================================================================================
+WHAT IT DOES: Confirms the full attendance workflow works end-to-end on
+your live Render URLs.
+
+Open your live frontend URL and check off each item:
+  [ ] Register a student account -> welcome email arrives via Brevo
+  [ ] Register a lecturer account and an admin account
+  [ ] Admin creates a department and a course, assigns the lecturer
+  [ ] Student enrolls in the course
+  [ ] Lecturer starts an attendance session -> session code is displayed
+  [ ] Student marks attendance with the correct code -> success message
+  [ ] Student tries marking attendance twice in the same session ->
+      rejected with a clear "already marked" message
+  [ ] Lecturer closes the session -> absent students are auto-recorded
+  [ ] Lecturer views the course attendance report -> percentages look
+      correct
+  [ ] Lecturer sends low-attendance alerts -> flagged students receive an
+      email via Brevo
+  [ ] Admin views the institution-wide summary -> numbers match what was
+      just created
+  [ ] Log out and confirm protected routes redirect to /login
+  [ ] Confirm all created data is visible in MongoDB Atlas's Collections
+      view (proves Render is really talking to your cloud database)
+
+If something fails, check Render's build/runtime logs (backend and
+frontend services separately) and Brevo's transactional email logs, all
+in-browser, before making further changes.
+
+================================================================================
+END OF GUIDE
+================================================================================
+Tip: paste these prompts one step at a time into your AI coding tool
+inside the GitHub web editor or Codespaces, commit and push after each
+step, and let Render redeploy and confirm the result on your live URLs
+before moving to the next step. Adjust field names or business rules
+(e.g. the 75% low-attendance threshold, academic session format) to match
+your institution's actual policies if they differ.
