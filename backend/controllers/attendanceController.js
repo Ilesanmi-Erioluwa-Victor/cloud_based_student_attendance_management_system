@@ -90,10 +90,14 @@ const closeSession = asyncHandler(async (req, res) => {
 const markAttendance = asyncHandler(async (req, res) => {
   const { sessionCode } = req.body;
 
-  const session = await AttendanceSession.findOne({ sessionCode, isActive: true });
+  const session = await AttendanceSession.findOne({ sessionCode });
   if (!session) {
     res.status(404);
-    throw new Error('Invalid or expired session code');
+    throw new Error('Invalid session code');
+  }
+  if (!session.isActive) {
+    res.status(400);
+    throw new Error('This session has been closed by the lecturer');
   }
 
   const enrollment = await Enrollment.findOne({
