@@ -9,13 +9,13 @@ export default function MyAttendanceHistory() {
   useEffect(() => {
     api.get('/attendance/my-history').then((res) => {
       setAllRecords(res.data);
-      const unique = [...new Set((res.data || []).map((r) => r.course?.code || r.courseCode).filter(Boolean))];
+      const unique = [...new Set((res.data || []).map((r) => r.course?.courseCode).filter(Boolean))];
       setCourses(unique);
     }).catch(() => {});
   }, []);
 
   const filtered = courseFilter
-    ? allRecords.filter((r) => (r.course?.code || r.courseCode) === courseFilter)
+    ? allRecords.filter((r) => r.course?.courseCode === courseFilter)
     : allRecords;
 
   return (
@@ -54,18 +54,18 @@ export default function MyAttendanceHistory() {
             <tbody className="divide-y divide-gray-200">
               {filtered.map((r, i) => (
                 <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-gray-600">{r.date ? new Date(r.date).toLocaleDateString() : '-'}</td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{r.course?.code || r.courseCode || '-'}</td>
-                  <td className="px-6 py-4 text-gray-600">{r.course?.title || r.courseTitle || '-'}</td>
-                  <td className="px-6 py-4 text-gray-600 font-mono">{r.sessionCode || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{r.markedAt ? new Date(r.markedAt).toLocaleDateString() : '-'}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{r.course?.courseCode || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{r.course?.courseTitle || '-'}</td>
+                  <td className="px-6 py-4 text-gray-600 font-mono">{r.attendanceSession?.sessionCode || '-'}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                      r.status === 'present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      r.status === 'Present' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                     }`}>
-                      {r.status === 'present' ? 'Present' : 'Absent'}
+                      {r.status === 'Present' ? 'Present' : 'Absent'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-gray-600">{r.createdAt ? new Date(r.createdAt).toLocaleTimeString() : '-'}</td>
+                  <td className="px-6 py-4 text-gray-600">{r.markedAt ? new Date(r.markedAt).toLocaleTimeString() : '-'}</td>
                 </tr>
               ))}
               {!filtered.length && (
