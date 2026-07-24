@@ -86,7 +86,7 @@ export default function ManageUsers() {
               filteredUsers.map((u) => (
                 <tr key={u._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 font-medium text-gray-800">
-                    {u.firstName} {u.lastName}
+                    {u.fullName}
                   </td>
                   <td className="px-6 py-4 text-gray-600">{u.email}</td>
                   <td className="px-6 py-4">
@@ -106,7 +106,7 @@ export default function ManageUsers() {
                     {u.department?.name || u.department || '—'}
                   </td>
                   <td className="px-6 py-4 text-gray-600">
-                    {u.matricNo || u.staffId || '—'}
+                    {u.matricNumber || u.staffId || '—'}
                   </td>
                   <td className="px-6 py-4">
                     <span

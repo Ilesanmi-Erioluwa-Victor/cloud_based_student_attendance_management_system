@@ -87,7 +87,7 @@ export default function ManageCourses() {
     });
     const lec = course.lecturer;
     setLecturerSearch(
-      lec ? `${lec.firstName || ''} ${lec.lastName || ''}`.trim() || lec.email || '' : '',
+      lec ? `${lec.fullName || ''}`.trim() || lec.email || '' : '',
     );
     setShowForm(true);
   };
@@ -98,7 +98,7 @@ export default function ManageCourses() {
 
   const selectLecturer = (lec) => {
     setForm((prev) => ({ ...prev, lecturer: lec._id }));
-    setLecturerSearch(`${lec.firstName || ''} ${lec.lastName || ''}`.trim() || lec.email);
+    setLecturerSearch(`${lec.fullName || ''}`.trim() || lec.email);
     setShowLecturerDropdown(false);
   };
 
@@ -165,7 +165,7 @@ export default function ManageCourses() {
   const filteredLecturers = lecturers.filter(
     (l) =>
       !lecturerSearch ||
-      `${l.firstName} ${l.lastName}`.toLowerCase().includes(lecturerSearch.toLowerCase()) ||
+      `${l.fullName}`.toLowerCase().includes(lecturerSearch.toLowerCase()) ||
       (l.email || '').toLowerCase().includes(lecturerSearch.toLowerCase()),
   );
 
@@ -294,7 +294,7 @@ export default function ManageCourses() {
                         onClick={() => selectLecturer(l)}
                         className="block w-full px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-primary-50"
                       >
-                        {l.firstName} {l.lastName} ({l.email})
+                        {l.fullName} ({l.email})
                       </button>
                     ))
                   )}
@@ -419,7 +419,7 @@ export default function ManageCourses() {
                   </td>
                   <td className="px-6 py-4 text-gray-600">
                     {c.lecturer
-                      ? `${c.lecturer.firstName || ''} ${c.lecturer.lastName || ''}`.trim() ||
+                      ? `${c.lecturer.fullName || ''}`.trim() ||
                         c.lecturer.email
                       : '—'}
                   </td>
