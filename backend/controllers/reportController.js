@@ -16,7 +16,6 @@ const getCourseReport = asyncHandler(async (req, res) => {
 
   const totalSessions = await AttendanceSession.countDocuments({
     course: courseId,
-    isActive: false,
   });
 
   const report = await Promise.all(
@@ -68,7 +67,6 @@ const getStudentReport = asyncHandler(async (req, res) => {
     enrollments.map(async (enrollment) => {
       const totalSessions = await AttendanceSession.countDocuments({
         course: enrollment.course._id,
-        isActive: false,
       });
 
       const presentCount = await AttendanceRecord.countDocuments({
