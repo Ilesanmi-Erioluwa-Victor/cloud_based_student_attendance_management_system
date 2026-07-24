@@ -137,7 +137,7 @@ export default function StartAttendanceSession() {
             <p className="mt-4 text-3xl font-mono font-bold text-gray-600">
               {formatElapsed(elapsed)}
             </p>
-            {session.status === 'open' && (
+            {session.isActive && (
               <button
                 onClick={closeSession}
                 disabled={closing}
@@ -148,7 +148,7 @@ export default function StartAttendanceSession() {
             )}
           </div>
 
-          {session.status === 'closed' && (
+          {!session.isActive && session.endTime && (
             <div className="mb-6 grid grid-cols-2 gap-4">
               <div className="rounded-lg bg-green-50 p-4 text-center">
                 <p className="text-2xl font-bold text-green-700">{presentCount}</p>
