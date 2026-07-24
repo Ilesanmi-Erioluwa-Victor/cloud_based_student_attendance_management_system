@@ -77,7 +77,7 @@ export default function StartAttendanceSession() {
       const res = await api.patch(`/attendance/sessions/${session._id}/close`);
       const updated = res.data?.session || res.data;
       setSession(updated);
-      setStudents(updated.students || []);
+      setStudents(res.data?.students || updated.students || []);
       clearInterval(timerRef.current);
       toast.success('Session closed');
     } catch (err) {

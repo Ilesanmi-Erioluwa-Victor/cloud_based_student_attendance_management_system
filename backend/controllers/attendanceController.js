@@ -84,7 +84,10 @@ const closeSession = asyncHandler(async (req, res) => {
     }
   }
 
-  res.json(session);
+  const records = await AttendanceRecord.find({ attendanceSession: session._id })
+    .populate('student', 'fullName matricNumber');
+
+  res.json({ session, students: records });
 });
 
 const markAttendance = asyncHandler(async (req, res) => {
